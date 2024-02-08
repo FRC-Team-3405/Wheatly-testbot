@@ -6,10 +6,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.revrobotics.CANSparkMax;
+// import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
@@ -51,6 +53,8 @@ public class Intake extends SubsystemBase{
         barPID.setP(kP);
         barPID.setI(kI);
         barPID.setD(kD);
+        barPID.setIZone(0);
+        barPID.setFF(0);
         barPID.setOutputRange(kMinOut, kMaxOut);
 
 
@@ -61,11 +65,38 @@ public class Intake extends SubsystemBase{
         barPID.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
         barPID.setSmartMotionAllowedClosedLoopError(0, smartMotionSlot);
         
+
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 100f);
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -100f);
+
+        m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+        m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        
+        barPID.setReference(0.3, CANSparkMax.ControlType.kDutyCycle);
+    }
+
+    public void startIntake() {
+        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
+        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
+        barPID.setReference(-0.3, CANSparkMax.ControlType.kDutyCycle);
+    }
+    
+    public void endIntake() {
+        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, 0);
+        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, 0);
+        barPID.setReference(0.3, CANSparkMax.ControlType.kDutyCycle);
     }
 
     public void runIntake() {
-        m_intakeMotor1.set(VictorSPXControlMode.Velocity, Constants.Intake.intakeVel);
-        m_intakeMotor2.set(VictorSPXControlMode.Velocity, Constants.Intake.intakeVel);
+        if (deployed) {
+        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
+        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
+        m_barMotor.set(0.3);
+        } else {
+        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, 0);
+        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, 0);
+        m_barMotor.set(-0.3);
+        }
     }
 
     public void breakIntake(){
@@ -74,28 +105,22 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean checkForNote() {
-        return (ultrasonicSensor.getValue() <= Constants.Intake.noteDetectionDistance);
+        // return (ultrasonicSensor.getValue() <= Constants.Intake.noteDetectionDistance);
+        return false;
     }
 
     public void toggleDeploy() {
         if(!deployed) {
-            // refrence this code for precice neo control through the spark max
-            // https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/Java/Smart%20Motion%20Example/src/main/java/frc/robot/Robot.java
-
-            barPID.setReference(Constants.Intake.barOutPoint, CANSparkMax.ControlType.kSmartMotion);
             deployed = true;
         } else {
-            barPID.setReference(Constants.Intake.barInPoint, CANSparkMax.ControlType.kSmartMotion);
             deployed = false;
         }
     }
 
     public void setDeploy(boolean mode) {
         if(mode && !deployed) {
-            barPID.setReference(Constants.Intake.barOutPoint, CANSparkMax.ControlType.kSmartMotion);
             deployed = true;
         } else if(!mode && deployed) {
-            barPID.setReference(Constants.Intake.barInPoint, CANSparkMax.ControlType.kSmartMotion);
             deployed = false;
         }
     }

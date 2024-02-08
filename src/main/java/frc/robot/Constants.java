@@ -30,9 +30,9 @@ public final class Constants {
     public static final double barMaxVel = 200;
     public static final double barMaxAcc = 150;
 
-    public static final double barOutPoint = 100;
-    public static final double barInPoint = -100;
+    public static final double barOutPoint = 1000;
+    public static final double barInPoint = -1000;
 
-    public static final double intakeVel = 1;
+    public static final double intakeVel = 0.5;
 }
 }

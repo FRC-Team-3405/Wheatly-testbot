@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
@@ -32,7 +34,7 @@ public class RobotContainer {
   // public VictorSPX mtr1 = new VictorSPX(2);
   // public VictorSPX mtr2 = new VictorSPX(3);
   // public VictorSPX mtr3 = new VictorSPX(3);
-  public Intake intake = new Intake(12, 2, 3, 0);
+  public Intake intake = new Intake(11, 2, 3, 0);
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController m_driverController =
       new XboxController(OperatorConstants.kDriverControllerPort);
@@ -41,6 +43,10 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    // intake.setDefaultCommand(null);
+
+    SmartDashboard.putData("intake",intake);
   }
 
   /**
@@ -53,8 +59,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new JoystickButton(m_driverController, 0).onTrue(new IntakeRun(intake));
+    new JoystickButton(m_driverController, 1).onTrue(new IntakeRun(intake,new JoystickButton(m_driverController, 2)));
   }
 
   /**
@@ -66,4 +71,12 @@ public class RobotContainer {
   //   // An example command will be run in autonomous
   //   // return Autos.exampleAuto(m_exampleSubsystem);
   // }
+
+  public void updateData() {
+    SmartDashboard.putData("intake", intake);
+    SmartDashboard.putBoolean("ControlerA", m_driverController.getAButton());
+    SmartDashboard.putBoolean("ControlerB", m_driverController.getBButton());
+    SmartDashboard.putBoolean("ControlorAJB", new JoystickButton(m_driverController, 1).getAsBoolean());
+    SmartDashboard.putBoolean("ControlorBJB", new JoystickButton(m_driverController, 2).getAsBoolean());
+  }
 }
