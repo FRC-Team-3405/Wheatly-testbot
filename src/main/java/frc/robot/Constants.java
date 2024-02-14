@@ -33,6 +33,29 @@ public final class Constants {
     public static final double barOutPoint = 1000;
     public static final double barInPoint = -1000;
 
-    public static final double intakeVel = 0.5;
+    public static final double intakeVel = 1;
+}
+  public static final class Launcher {
+    public static final double LaunchV = 100;
+    public static final double LaunchP = .5;
+
+    public static final double LaunchASAPTime = 5;
+    public static final double LaunchStopTime = 3;
+
+    public static final double P = 0.05;
+    public static final double I = 0.05;
+    public static final double D = 0.01;
+
+    public static final double FF = 0.000156;
+
+    public static final double MaxOut = 1;
+    public static final double MinOut = -1;
+
+    public static final double MaxRPM = 570;
+    public static final double MaxVel = 200;
+    public static final double MaxAcc = 150;
+
+    public static final double OutPoint = 1000;
+    public static final double InPoint = -1000;
 }
 }

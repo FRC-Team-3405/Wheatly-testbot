@@ -21,82 +21,89 @@ public class Intake extends SubsystemBase{
     public VictorSPX m_intakeMotor2;
     public CANSparkMax m_barMotor;
     public RelativeEncoder barEncoder;
-    public SparkPIDController barPID;
-    public boolean deployed;
+    // public SparkPIDController barPID;
+    private boolean deployed;
     public AnalogInput ultrasonicSensor;
 
     public double kP, kI, kD, kMaxOut, kMinOut, maxRPM, maxVel, maxAcc;
 
 
     public Intake(int m_barMotorId, int m_intakeMotor1ID, int m_intakeMotor2ID, int ultrasonicSensorID) {
-        SmartDashboard.putNumber("test",3);
+        // SmartDashboard.putNumber("test",3);
         m_barMotor = new CANSparkMax(m_barMotorId, com.revrobotics.CANSparkLowLevel.MotorType.kBrushless);
         m_intakeMotor1 = new VictorSPX(m_intakeMotor1ID);
         m_intakeMotor2 = new VictorSPX(m_intakeMotor2ID);
         ultrasonicSensor = new AnalogInput(ultrasonicSensorID);
 
+        m_barMotor.restoreFactoryDefaults();
+
         barEncoder = m_barMotor.getEncoder();
-        barPID = m_barMotor.getPIDController();
+        // barPID = m_barMotor.getPIDController();
 
-        kP = Constants.Intake.barP;
-        kI = Constants.Intake.barI;
-        kD = Constants.Intake.barD;
+        // kP = Constants.Intake.barP;
+        // kI = Constants.Intake.barI;
+        // kD = Constants.Intake.barD;
     
-        kMaxOut = Constants.Intake.barMaxOut;
-        kMinOut = Constants.Intake.barMinOut;
+        // kMaxOut = Constants.Intake.barMaxOut;
+        // kMinOut = Constants.Intake.barMinOut;
 
-        maxRPM = Constants.Intake.barMaxRPM;
-        maxVel = Constants.Intake.barMaxVel;
-        maxAcc = Constants.Intake.barMaxAcc;
+        // maxRPM = Constants.Intake.barMaxRPM;
+        // maxVel = Constants.Intake.barMaxVel;
+        // maxAcc = Constants.Intake.barMaxAcc;
 
         // set PID coefficients
-        barPID.setP(kP);
-        barPID.setI(kI);
-        barPID.setD(kD);
-        barPID.setIZone(0);
-        barPID.setFF(0);
-        barPID.setOutputRange(kMinOut, kMaxOut);
+        // barPID.setP(kP);
+        // barPID.setI(kI);
+        // barPID.setD(kD);
+        // barPID.setIZone(0);
+        // barPID.setFF(0);
+        // barPID.setOutputRange(kMinOut, kMaxOut);
 
-
-        
-        int smartMotionSlot = 0;
-        barPID.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
-        barPID.setSmartMotionMinOutputVelocity(0, smartMotionSlot);
-        barPID.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
-        barPID.setSmartMotionAllowedClosedLoopError(0, smartMotionSlot);
-        
-
-        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 100f);
-        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -100f);
 
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+    
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 15);
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
+    
+        SmartDashboard.putBoolean("Forward Soft Limit Enabled",
+                                  m_barMotor.isSoftLimitEnabled(CANSparkMax.SoftLimitDirection.kForward));
+        SmartDashboard.putBoolean("Reverse Soft Limit Enabled",
+                                  m_barMotor.isSoftLimitEnabled(CANSparkMax.SoftLimitDirection.kReverse));                          
+        SmartDashboard.putNumber("Forward Soft Limit",
+                                  m_barMotor.getSoftLimit(CANSparkMax.SoftLimitDirection.kForward));
+        SmartDashboard.putNumber("Reverse Soft Limit",
+                                  m_barMotor.getSoftLimit(CANSparkMax.SoftLimitDirection.kReverse));
         
-        barPID.setReference(0.3, CANSparkMax.ControlType.kDutyCycle);
+        // barPID.setReference(-0.3, CANSparkMax.ControlType.kDutyCycle);
     }
 
     public void startIntake() {
         m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
         m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
-        barPID.setReference(-0.3, CANSparkMax.ControlType.kDutyCycle);
+        // barPID.setReference(0.3, CANSparkMax.ControlType.kDutyCycle);
+        m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+        m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
+        m_barMotor.set(0.3);
+        
+        System.out.println("Start");
     }
     
     public void endIntake() {
         m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, 0);
         m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, 0);
-        barPID.setReference(0.3, CANSparkMax.ControlType.kDutyCycle);
+        // barPID.setReference(-0.3, CANSparkMax.ControlType.kDutyCycle);
+        m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false);
+        m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        m_barMotor.set(-0.3);
+        System.out.println("End");
     }
 
     public void runIntake() {
-        if (deployed) {
-        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
-        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, Constants.Intake.intakeVel);
-        m_barMotor.set(0.3);
-        } else {
-        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, 0);
-        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, 0);
-        m_barMotor.set(-0.3);
-        }
+        // m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, SmartDashboard.getBoolean("Forward Soft Limit Enabled", true));
+        // m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, SmartDashboard.getBoolean("Reverse Soft Limit Enabled", true));
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, (float)SmartDashboard.getNumber("Forward Soft Limit", 15));
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, (float)SmartDashboard.getNumber("Reverse Soft Limit", 0));
     }
 
     public void breakIntake(){
@@ -109,11 +116,23 @@ public class Intake extends SubsystemBase{
         return false;
     }
 
+    public void pushIntake(boolean stop) {
+        if(!stop) {
+        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, -0.3);
+        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, -0.3);
+        } else {
+        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, 0);
+        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, 0);
+        }
+    }
+
     public void toggleDeploy() {
         if(!deployed) {
             deployed = true;
+            startIntake();
         } else {
             deployed = false;
+            endIntake();
         }
     }
 
@@ -123,6 +142,10 @@ public class Intake extends SubsystemBase{
         } else if(!mode && deployed) {
             deployed = false;
         }
+    }
+
+    public boolean getMode() {
+        return deployed;
     }
     
 

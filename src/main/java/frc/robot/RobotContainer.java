@@ -6,7 +6,9 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.IntakeRun;
+import frc.robot.commands.LaunchASAP;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.ExampleSubsystem;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRXPIDSetConfiguration;
@@ -28,13 +30,13 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  // The robot's subsystems and commands are defined here..
 
   // public VictorSPX mtr1 = new VictorSPX(2);
   // public VictorSPX mtr2 = new VictorSPX(3);
   // public VictorSPX mtr3 = new VictorSPX(3);
   public Intake intake = new Intake(11, 2, 3, 0);
+  public Launcher launcher = new Launcher(12,13);
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController m_driverController =
       new XboxController(OperatorConstants.kDriverControllerPort);
@@ -44,9 +46,11 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
+    intake.setDefaultCommand(new IntakeRun(intake,new JoystickButton(m_driverController, 2)));
     // intake.setDefaultCommand(null);
 
     SmartDashboard.putData("intake",intake);
+    SmartDashboard.putData(launcher);
   }
 
   /**
@@ -59,7 +63,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    new JoystickButton(m_driverController, 1).onTrue(new IntakeRun(intake,new JoystickButton(m_driverController, 2)));
+    new JoystickButton(m_driverController, 4).onTrue(new LaunchASAP(intake,launcher));
   }
 
   /**
