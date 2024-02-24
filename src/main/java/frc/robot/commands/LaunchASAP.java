@@ -31,13 +31,13 @@ public class LaunchASAP extends Command{
         timer.start();
         launch = false;
         s_Launcher.startLaunch();
-        System.out.println("StartLaunch");
+        System.out.println("Start LaunchASAP");
     }
 
     @Override
     public void execute() {
         
-        System.out.println(timer.get());
+        // System.out.println(timer.get());
         if(timer.get() >= Constants.Launcher.LaunchASAPTime && !launch) {
             launch = true;
             s_Intake.pushIntake(false);
@@ -49,7 +49,7 @@ public class LaunchASAP extends Command{
     public void end(boolean interrupted) {
         s_Launcher.endLaunch();
         s_Intake.pushIntake(true);
-        System.out.println("endLaunch");
+        System.out.println("End LaunchASAP");
     }
 
     @Override

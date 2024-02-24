@@ -14,6 +14,7 @@ import com.revrobotics.CANSparkMax;
 // import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 public class Intake extends SubsystemBase{
 
@@ -36,6 +37,7 @@ public class Intake extends SubsystemBase{
         ultrasonicSensor = new AnalogInput(ultrasonicSensorID);
 
         m_barMotor.restoreFactoryDefaults();
+        m_barMotor.setIdleMode(IdleMode.kBrake);
 
         barEncoder = m_barMotor.getEncoder();
         // barPID = m_barMotor.getPIDController();
@@ -63,8 +65,8 @@ public class Intake extends SubsystemBase{
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
     
-        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 15);
-        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, Constants.Intake.forwardLim);
+        m_barMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, Constants.Intake.reversLim);
     
         SmartDashboard.putBoolean("Forward Soft Limit Enabled",
                                   m_barMotor.isSoftLimitEnabled(CANSparkMax.SoftLimitDirection.kForward));
@@ -84,7 +86,7 @@ public class Intake extends SubsystemBase{
         // barPID.setReference(0.3, CANSparkMax.ControlType.kDutyCycle);
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
-        m_barMotor.set(0.3);
+        m_barMotor.set(Constants.Intake.acuateVel);
         
         System.out.println("Start");
     }
@@ -95,7 +97,7 @@ public class Intake extends SubsystemBase{
         // barPID.setReference(-0.3, CANSparkMax.ControlType.kDutyCycle);
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false);
         m_barMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
-        m_barMotor.set(-0.3);
+        m_barMotor.set(-Constants.Intake.acuateVel);
         System.out.println("End");
     }
 
@@ -118,8 +120,8 @@ public class Intake extends SubsystemBase{
 
     public void pushIntake(boolean stop) {
         if(!stop) {
-        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, -0.3);
-        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, -0.3);
+        m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, -Constants.Intake.intakeVel);
+        m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, -Constants.Intake.intakeVel);
         } else {
         m_intakeMotor1.set(VictorSPXControlMode.PercentOutput, 0);
         m_intakeMotor2.set(VictorSPXControlMode.PercentOutput, 0);

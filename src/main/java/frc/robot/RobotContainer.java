@@ -5,10 +5,12 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.IntakeRun;
 import frc.robot.commands.LaunchASAP;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.LEDS;
 import frc.robot.subsystems.ExampleSubsystem;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRXPIDSetConfiguration;
@@ -17,9 +19,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
@@ -35,8 +39,10 @@ public class RobotContainer {
   // public VictorSPX mtr1 = new VictorSPX(2);
   // public VictorSPX mtr2 = new VictorSPX(3);
   // public VictorSPX mtr3 = new VictorSPX(3);
-  public Intake intake = new Intake(11, 2, 3, 0);
-  public Launcher launcher = new Launcher(12,13);
+  public Intake intake = new Intake(Constants.Intake.ActuatorCAN, Constants.Intake.RollerCAN1, Constants.Intake.RollerCAN2, 0);
+  public Launcher launcher = new Launcher(Constants.Launcher.LeftCAN,Constants.Launcher.RightCAN);
+  public LEDS theLEDs = new LEDS(1,100);
+  public DigitalInput LIM = new DigitalInput(0);
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final XboxController m_driverController =
       new XboxController(OperatorConstants.kDriverControllerPort);
@@ -44,13 +50,15 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+    System.out.println("Robot Startup");
     configureBindings();
 
-    intake.setDefaultCommand(new IntakeRun(intake,new JoystickButton(m_driverController, 2)));
+    intake.setDefaultCommand(new IntakeDefault(intake,LIM));
     // intake.setDefaultCommand(null);
 
     SmartDashboard.putData("intake",intake);
     SmartDashboard.putData(launcher);
+    theLEDs.SetFull(255,50,00);
   }
 
   /**
@@ -64,6 +72,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     new JoystickButton(m_driverController, 4).onTrue(new LaunchASAP(intake,launcher));
+    new JoystickButton(m_driverController, 2).onTrue(new IntakeRun(intake, LIM, new JoystickButton(m_driverController, 2)));
   }
 
   /**
@@ -77,10 +86,16 @@ public class RobotContainer {
   // }
 
   public void updateData() {
+    // theLEDs.rainbow(2, 3); 
+    SmartDashboard.putBoolean("limit switch", LIM.get());
     SmartDashboard.putData("intake", intake);
     SmartDashboard.putBoolean("ControlerA", m_driverController.getAButton());
     SmartDashboard.putBoolean("ControlerB", m_driverController.getBButton());
     SmartDashboard.putBoolean("ControlorAJB", new JoystickButton(m_driverController, 1).getAsBoolean());
     SmartDashboard.putBoolean("ControlorBJB", new JoystickButton(m_driverController, 2).getAsBoolean());
   }
+
+  // public void testLights() {
+  //   theLEDs.rainbow();
+  // }
 }

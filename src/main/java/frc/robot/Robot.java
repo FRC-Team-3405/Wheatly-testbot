@@ -84,6 +84,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    System.out.println("StartTeleop");
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -101,7 +102,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    // m_robotContainer.testLights();
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
